@@ -1,0 +1,10 @@
+export 'package:CAAPMI/widgets/inputs_ordenes.dart';
+export 'package:CAAPMI/widgets/container_forms.dart';
+export 'package:CAAPMI/widgets/custom_dropdown.dart';
+export 'package:CAAPMI/widgets/boton_azul.dart';
+export 'package:CAAPMI/widgets/custom_input.dart';
+export 'package:CAAPMI/widgets/form_general.dart';
+export 'package:CAAPMI/widgets/labels.dart';
+export 'package:CAAPMI/widgets/logo.dart';
+export 'package:CAAPMI/widgets/inputs_general_form.dart';
+export 'package:CAAPMI/widgets/inputs_paciente_form.dart';
