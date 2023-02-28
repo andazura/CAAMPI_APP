@@ -131,19 +131,19 @@ class _CustomDropdownEquipoState extends State<CustomDropdownEquipo> {
 
 class CustomDropdownTipoCC extends StatefulWidget {
 
-  List<List<String>> estrategias =
+  List<List<String>> tipos_cc =
    [
-    ['CC','CC = Cédula ciudadanía'],
-    ['CE','CE = Cédula de extranjería'],
-    ['CD','CD = Carné diplomático '],
-    ['PA','PA = Pasaporte'],
-    ['PE','PE = Permiso Especial de Permanencia'],
-    ['PPT','PPT = Permiso por Protección Temporal'],
-    ['RC','RC = Registro civil'],
-    ['TI','TI = Tarjeta de identidad'],
-    ['CN','CN = Certificado de nacido vivo'],
-    ['AS','AS = Adulto sin identificar'],
-    ['MS','MS = Menor sin identificar'],
+    ['Cédula ciudadanía','CC = Cédula ciudadanía'],
+    ['Cédula de extranjería','CE = Cédula de extranjería'],
+    ['Carné diplomático ','CD = Carné diplomático '],
+    ['Pasaporte','PA = Pasaportse'],
+    ['Permiso Especial de Permanencia','PE = Permiso Especial de Permanencia'],
+    ['= Permiso por Protección TemporalT','PPT = Permiso por Protección Temporal'],
+    ['Registro civil','RC = Registro civil'],
+    ['Tarjeta de identidad','TI = Tarjeta de identidad'],
+    ['Certificado de nacido vivo','CN = Certificado de nacido vivo'],
+    ['Adulto sin identificar','AS = Adulto sin identificar'],
+    ['Menor sin identificar','MS = Menor sin identificar'],
    ];
 
   @override
@@ -162,7 +162,7 @@ class _CustomDropdownTipoCCState extends State<CustomDropdownTipoCC> {
       hint: const Text("Tipo Doc."),
       value: formCtrl.tipoDocumento.value,
       style: const TextStyle(fontSize: 12,color: Colors.black54),
-  items: widget.estrategias.map((value) {
+  items: widget.tipos_cc.map((value) {
     return DropdownMenuItem<String>(
           value: value[0],
           child: Text(value[1]),
@@ -641,6 +641,61 @@ class _TipoAtencionState extends State<TipoAtencion> {
             
             if( value == null) return;
             formCtrl.tipo_atencion.value = value;
+            setState(() { });
+          },
+        )
+      ]
+    );
+  }
+}
+
+
+class FinalidadConsulta extends StatefulWidget {
+  const FinalidadConsulta({super.key});
+
+  @override
+  State<FinalidadConsulta> createState() => _FinalidadConsulta();
+}
+
+class _FinalidadConsulta extends State<FinalidadConsulta> {
+  
+  List<List<String>> finalidad_consulta = [
+    ['01 Atención del parto (puerperio)','01 Atención del parto (puerperio)'],
+    ['02 Atención del recién nacido','02 Atención del recién nacido'],
+    ['03 Atención en planificación familiar','03 Atención en planificación familiar'],
+    ['04 Detección de alteraciones de crecimiento y desarrollo del menor de diez años','04 Detección de alteraciones de crecimiento y desarrollo del menor de diez años'],
+    ['05 Detección de alteración del desarrollo joven','05 Detección de alteración del desarrollo joven'],
+    ['06 Detección de alteraciones del embarazo','06 Detección de alteraciones del embarazo'],
+    ['07 Detección de alteraciones del adulto','07 Detección de alteraciones del adulto'],
+    ['08 Detección de alteraciones de agudeza visual','08 Detección de alteraciones de agudeza visual'],
+    ['09 Detección de enfermedad profesional','09 Detección de enfermedad profesional'],
+    ['',''],
+    ['10 Resolutiva','10 Resolutiva'],
+  ];
+
+  final formCtrl = Get.find<FormController>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: 
+      [
+        const Text("Finalidad Consulta"),
+        DropdownButton<String>(
+          isExpanded: true,
+          hint: const Text("Finalidad Consulta"),
+          value: formCtrl.finalidadConsulta.value,
+          style: const TextStyle(fontSize: 12,color: Colors.black54),
+        items: finalidad_consulta.map((value) {
+        return DropdownMenuItem<String>(
+              value: value[0],
+              child: Text(value[1]),
+            );
+          }).toList(),
+          onChanged: (value) {
+            
+            if( value == null) return;
+            formCtrl.finalidadConsulta.value = value;
             setState(() { });
           },
         )

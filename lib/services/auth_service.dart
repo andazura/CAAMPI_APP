@@ -62,6 +62,7 @@ class AuthService with ChangeNotifier{
         final loginResponse = loginResponseFromJson(resp.body);
         this.usuario = loginResponse.usuario;
         await _guardarToken(loginResponse.token);
+        await _guardarCredenciales(email,password);
         return true;
       }catch (e){
         print("erro");
@@ -129,7 +130,7 @@ class AuthService with ChangeNotifier{
       await _guardarToken(loginResponse.token);
       return true;
     }else{
-      this.logout();
+      logout();
       return false;
     }
 
@@ -139,6 +140,18 @@ class AuthService with ChangeNotifier{
     return await _storage.write(key: 'token', value: token);
   }
 
+
+  Future _guardarCredenciales(String usuario, String password) async {
+    await _storage.write(key: 'user', value: usuario);
+    return await _storage.write(key: 'pass', value: password);
+  }
+
+  Future<List<String>?> getCredenciales() async{
+      final user = await _storage.read(key: 'user');
+      final pass = await _storage.read(key: 'pass');
+      if(user == null || pass == null) return [];
+      return List<String>.from([user,pass]);
+  }
   Future logout( ) async {
     await _storage.delete(key: 'token');
   }

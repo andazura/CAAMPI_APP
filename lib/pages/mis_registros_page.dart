@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:CAAPMI/controllers/registros_controller.dart';
+import 'package:CAAPMI/helpers/alertas.dart';
 import 'package:CAAPMI/services/auth_service.dart';
 import 'package:CAAPMI/services/db_service.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -53,6 +55,12 @@ class MisRegistrosScreen extends StatelessWidget {
           children: [
       
               const SizedBox( height:  10),
+              ElevatedButton(onPressed: (){
+                reportesController.getReportes(query: "");
+              },
+                child: const Text("Obtener todos los regsitros")
+              ),
+              const SizedBox( height:  10),
               const Text("Filtro Fecha:"),
               TextField(
                     readOnly: true,
@@ -83,6 +91,8 @@ class MisRegistrosScreen extends StatelessWidget {
         ),
       ),
     );
+
+    
   }
 
 
@@ -112,33 +122,31 @@ class Registros extends StatelessWidget {
                 const Divider(),
                 const Text("Resultado Consulta", style: TextStyle( fontWeight: FontWeight.bold, fontSize: 18 ),),
                 const ListTile(
-                  title: Text("Usuario", textAlign: TextAlign.center,),
-                  trailing: Text("Editar"),
+                  title: Text("Usuario", textAlign: TextAlign.center),
                   leading: Text("Descargar"),
                 ),
                 ...reportesController.reportes.value!.map(
                   (reg) => 
 
-                    ListTile(
-                      title: Column(
-                        children: [
-                          Text("${reg['primer_nombre']} ${reg['primer_apellido']}"),
-                          Text(reg['id_familia'].toString())
-                        ],
-                      ),
-                      trailing: IconButton(
-                        onPressed: (){
-                          print("object");
-                        },
-                        icon: Icon( Icons.edit, color: Colors.blue,),
-                      ),
-                      leading: IconButton(
-                        onPressed: () async {
-                          String query = " AND id_auto_reportes = ${reg['id_auto_reportes']}";
-                          await reportesController.getReportes( modoExporte: 1,  query: query );
-                          reportesController.exportReportes(  modo:  1 );
-                        },
-                        icon: Icon( FontAwesomeIcons.download, color: Colors.green[600],),
+                    GestureDetector(
+                      onLongPress: (){
+                        _showActionSheet( idReporte: int.tryParse(reg['id_auto_reportes'].toString())! );
+                      },
+                      child: ListTile(
+                        title: Column(
+                          children: [
+                            Text("${reg['primer_nombre']} ${reg['primer_apellido']}"),
+                            Text(reg['id_familia'].toString())
+                          ],
+                        ),
+                        leading: IconButton(
+                          onPressed: () async {
+                            String query = " AND id_auto_reportes = ${reg['id_auto_reportes']}";
+                            await reportesController.getReportes( modoExporte: 1,  query: query );
+                            reportesController.exportReportes(  modo:  1 );
+                          },
+                          icon: Icon( FontAwesomeIcons.download, color: Colors.green[600],),
+                        ),
                       ),
                     )
                   )
@@ -146,7 +154,53 @@ class Registros extends StatelessWidget {
               ],
             )
     );
+  }
 
 
+  void _showActionSheet({ required int idReporte }) {
+
+    final reportesController =  Get.find<RegistrosController>();
+
+    final context =  Get.context;
+    showCupertinoModalPopup<void>(
+      context: context!,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        title: const Text('Registro'),
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            /// This parameter indicates the action would be a default
+            /// defualt behavior, turns the action's text to bold text.
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Editar'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () async {
+              final res =  await reportesController.delReport( idReporte: idReporte );
+              Navigator.pop(context);
+              if(res >= 0){
+                mosrtarAlerta(context, "Registro eliminado", "Se elimino exitosamente");
+              }else{
+                mosrtarAlerta(context, "Error", "No se pudo eliminar el registro");
+              }
+              
+            },
+            child: const Text('Eliminar'),
+          ),
+          CupertinoActionSheetAction(
+            /// This parameter indicates the action would perform
+            /// a destructive action such as delete or exit and turns
+            /// the action's text color to red.
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
   }
 }

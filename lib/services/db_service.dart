@@ -312,14 +312,14 @@ class DBProvider{
       "vacunacion_casa,quien_vacunacion,orden_citomapro,orden_psico,numero_controles_ruta,"
       "clasificacinon_nutricional,escala_framingham,riesgo_escala_framingham,puntaje_findrisk,riesgo_findrisk,"
       "canalizacion_rias,canalizacion_subsistema,tipo_atencion,enfermedad_cronica,hipertension,"
-      "diabetes,epoc,cancer,tipo_cancer,otra_cronica,"
+      "diabetes,epoc,cancer,tipo_cancer,otra_cronica,usuario_gestante,"
       "observaciones_paciente)"
       "VALUES ("
       // "usuario_gestante,edad_gestacional,fecha_ultimo_parto,fur,fpp,semana10,semana12,clasificacion_trimestral,clasficacion_riesgo,riesgo_psicosocial,riesgo_biosicosocial,riesgo_obstetrico,riesgo_tromboembolico,riesgo_depresion_pos_parto,sifilis_gestacional,sifilis_congenita,mme,hepatitisb,vih,consulta_control,
       "'${f.consecutivo}','${f.estrateegia}', '${f.equipo}', '${f.localidad}', '${f.idfamilia}',"
       "'${f.fechaConsulta}','${f.personaAtiende}','${f.tipoDocumento}', '${f.documento}', '$pnombre',"
       "'$snombre', '$papellido', '$sapellido', '${f.fechaNacimineto}', '${f.sexo}',"
-      "'${f.regimen}', '${f.eps}', '${f.nacionalidad}', '${f.grupoPoblacion}', '890101','',"
+      "'${f.regimen}', '${f.eps}', '${f.nacionalidad}', '${f.grupoPoblacion}', '890101','${f.finalidadConsulta}',"
 
       "'${f.codDiag}', '${f.codDiag1}', '${f.codDiag2}', '${f.codDiag3}', '${f.tipoDiagnostico}',"
       "'${f.vacunasAlDia}', '${f.peso}', '${f.talla}', '${f.frecuenciaC}', '${f.tieneGluco}',"
@@ -329,7 +329,7 @@ class DBProvider{
       "'${f.vacunacionCasa}','${f.vacunaQuien}', '${f.citomapro}', '${f.ordenPsico}', '0',"
       "'','','','${f.puntajeFINDRISC}', '${f.riesgoFINDRISC}',"
       "'${f.canalizacion_rias}','No aplica', '${f.tipo_atencion}', '${f.enfermedad_cronica}','${f.hipertension}',"
-      "'${f.diabetes}', '${f.epoc}', '${f.cancer}' ,'${f.tipo_cancer}', '${f.otra_cronica}',"
+      "'${f.diabetes}', '${f.epoc}', '${f.cancer}' ,'${f.tipo_cancer}', '${f.otra_cronica}', '${f.usuarioGestante}'"
       "'')");
 
       if(f.personaAtiende.value){
@@ -343,6 +343,10 @@ class DBProvider{
     // return res;
   }
 
+  Future<int> delReporte( int idReporte ) async {
+    final db = await database;
+     return  await db.delete("reportes", where: 'id_auto_reportes = ?', whereArgs: [idReporte]);
+  }
 
   Future<int> insertRegimenes( RegimenModel  regimen ) async {
     final db = await database;

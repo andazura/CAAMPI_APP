@@ -143,6 +143,8 @@ class InputsPacienteForm extends StatelessWidget {
                 CustomDropdownNacionalidad(),
           
                 CustomDropdownGrupoPoblacion(),
+
+                const FinalidadConsulta( ),
                  
                 // AutocompleteDiagnostico(),
                 const Text("Código del diagnóstico principal", style: TextStyle(fontWeight: FontWeight.bold, ),),
@@ -156,7 +158,7 @@ class InputsPacienteForm extends StatelessWidget {
                 AutoCompleteDiagnostico(
                   initialValue: TextEditingValue( text:  formCtrl.codDiag1.value ),
                   onSelected: (p0) {
-                  formCtrl.codDiag2.value = p0.codigo;  
+                  formCtrl.codDiag1.value = p0.codigo;  
                 },  ),
 
                 const Text("Código del diagnóstico principal 2", style: TextStyle(fontWeight: FontWeight.bold, ),),
@@ -255,13 +257,48 @@ class InputsPacienteForm extends StatelessWidget {
 
                 const TipoAtencion(),
 
-                _enfermedadCronica(),
-                
+                const _enfermedadCronica(),
+
+                const UsuarioGestante(),                
 
                 const SizedBox( height: 100 ),
               ],
             ),
           ),
+    );
+  }
+}
+
+class UsuarioGestante extends StatefulWidget {
+  const UsuarioGestante({
+    super.key,
+  });
+
+  @override
+  State<UsuarioGestante> createState() => _UsuarioGestanteState();
+}
+
+class _UsuarioGestanteState extends State<UsuarioGestante> {
+  @override
+  Widget build(BuildContext context) {
+    final formCtrl = Get.find<FormController>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(
+          width: double.infinity,
+        ),
+        const Text("Usuaria gestante"),
+        Checkbox(
+                  value: formCtrl.usuarioGestante.value,
+                  onChanged: (bool? value) { 
+                    setState(() {                  
+                      formCtrl.usuarioGestante.value = value!;
+                    });
+                  },
+                ),
+      ],
     );
   }
 }
@@ -929,22 +966,27 @@ calculaRiesgo(){
   if(puntaje != null){
     if( puntaje >= 0 && puntaje <=7 ){
     riesgoFINDRISCController.text = "Nivel de riesgo bajo";
+    formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;
     return;
     }
     if( puntaje >= 8 && puntaje <=11 ){
       riesgoFINDRISCController.text = "Nivel de riesgo ligeramente elevado";
+      formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;
       return;
     }
     if( puntaje >= 12 && puntaje <=14 ){
       riesgoFINDRISCController.text = "Nivel de riesgo moderado";
+      formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;
       return;
     }
     if( puntaje >= 15 && puntaje <=20 ){
       riesgoFINDRISCController.text = "Nivel de riesgo alto";
+      formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;
       return;
     }
-    if( puntaje == 21 ){
+    if( puntaje >= 21 ){
       riesgoFINDRISCController.text = "Nivel de riesgo muy alto";
+      formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;
       return;
     }
     formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;

@@ -7,7 +7,9 @@ import 'package:provider/provider.dart';
 import 'package:CAAPMI/routes/routes.dart';
 import 'package:CAAPMI/services/auth_service.dart';
 
-void main() => runApp(const MyApp());
+Future<void> main() async {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

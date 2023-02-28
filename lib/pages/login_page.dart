@@ -1,9 +1,11 @@
+import 'package:CAAPMI/controllers/auth_controllers.dart';
 import 'package:CAAPMI/helpers/alertas.dart';
 import 'package:CAAPMI/pages/menu_page.dart';
 import 'package:CAAPMI/services/auth_service.dart';
 import 'package:CAAPMI/services/utils_service.dart';
 import 'package:CAAPMI/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:CAAPMI/services/db_service.dart';
@@ -44,13 +46,16 @@ class _Form extends StatefulWidget {
 }
 
 class _FormStateState extends State<_Form> {
-  final emailCtrl = TextEditingController();
 
+  final emailCtrl = TextEditingController();
   final passwCtrl = TextEditingController();
+
+  final auController = Get.put(AuthController());
 
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: true);
+    
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -76,6 +81,12 @@ class _FormStateState extends State<_Form> {
             ? null
             : boton,
             textButton: "Ingresar"
+          ),
+
+          Obx(() => 
+            auController.canAuth.value!
+            ? _auth_bio(auController: auController, onPressed: loginBiometrics,)
+            : SizedBox()
           )
         ],
       ),
@@ -97,6 +108,22 @@ class _FormStateState extends State<_Form> {
     }
   }
 
+  void loginBiometrics() async {
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final credenciales = await authService.getCredenciales();
+        if(credenciales!.isEmpty){
+          mosrtarAlerta(context, "Error", "Aun no te has logueado, ingresa para posteriormente usar Face Id");
+          return;
+        }
+        final auth = await auController.Autenticar();
+        if(auth){
+          emailCtrl.text = credenciales[0];
+          passwCtrl.text = credenciales[1];
+          boton();
+        }
+  }
+
   Future getDataToRegistro() async {
 
     final utilsService = Provider.of<UtilsService>(context,listen:false);
@@ -107,5 +134,25 @@ class _FormStateState extends State<_Form> {
     if(! await DBProvider.db.getDiaganosticos()  ) await utilsService.getDiagnosticos();
 
     return true;
+  }
+}
+
+class _auth_bio extends StatelessWidget {
+
+  final void Function()? onPressed;
+  const _auth_bio({
+    super.key,
+    required this.auController, this.onPressed,
+  });
+
+  
+  final AuthController auController;
+
+  @override
+  Widget build(BuildContext context) {
+    
+    return IconButton(
+      onPressed: onPressed,
+    icon: Icon(FontAwesomeIcons.fingerprint));
   }
 }

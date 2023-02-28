@@ -31,6 +31,10 @@ class RegistrosController extends GetxController{
     reportes.value = resp;
   }
 
+  Future<int> delReport({required int idReporte }) async {
+     return await DBProvider.db.delReporte( idReporte );
+  }
+
 
   exportReportes( {int modo = 0 } ) async{
 
@@ -43,7 +47,7 @@ class RegistrosController extends GetxController{
       mosrtarAlerta(Get.context!, "Error", "No hay reportes para descargar, prueba una nueva consulta");
       return;
     }
-
+    print("El reg leng ${reportesDow.value!.length} ");
     
     Directory documentsDirectory = await getTemporaryDirectory();            
     //Create a new Excel document.
@@ -55,6 +59,7 @@ class RegistrosController extends GetxController{
     globalStyle.borders.all.lineStyle = ExcelPkg.LineStyle.thin;
     globalStyle.borders.all.color = '#0000000';
 
+    sheet.enableSheetCalculations();
 
 
     sheet.showGridlines = true;
@@ -144,7 +149,8 @@ class RegistrosController extends GetxController{
       sheet.getRangeByIndex(row, 8).setText( reportesDow.value![i]['primer_apellido'].toString() );  
       sheet.getRangeByIndex(row, 9).setText( reportesDow.value![i]['segundo_apellido'].toString() );  
       sheet.getRangeByIndex(row, 10).setText( reportesDow.value![i]['fecha_nacimiento'].toString() ); 
-      // EDdad meses y años dias total dias momento
+      
+      //sheet.getRangeByIndex(row, 11).setFormula('=+SIFECHA("${reportesDow.value![i]['fecha_nacimiento']}";"${reportesDow.value![i]['fecha_consulta']}";"Y")');
       sheet.getRangeByIndex(row, 11).setText( "" ); 
       sheet.getRangeByIndex(row, 12).setText( "" ); 
       sheet.getRangeByIndex(row, 13).setText( "" ); 
@@ -158,16 +164,16 @@ class RegistrosController extends GetxController{
       sheet.getRangeByIndex(row, 20).setText( reportesDow.value![i]['grupo_poblacion'].toString() );  
       sheet.getRangeByIndex(row, 21).setText( reportesDow.value![i]['codigo_consulta'].toString() );  
       sheet.getRangeByIndex(row, 22).setText( reportesDow.value![i]['finlidad_consulta'].toString() );  
-      sheet.getRangeByIndex(row, 23).setText( reportesDow.value![i]['codDiag'].toString() );  
-      sheet.getRangeByIndex(row, 24).setText( reportesDow.value![i]['codDiag1'].toString() );  
-      sheet.getRangeByIndex(row, 25).setText( reportesDow.value![i]['codDiag2'].toString() );  
-      sheet.getRangeByIndex(row, 26).setText( reportesDow.value![i]['codDiag3'].toString() );  
+      sheet.getRangeByIndex(row, 23).setText( reportesDow.value![i]['codDiag'].toString() == '' ? '0': reportesDow.value![i]['codDiag'].toString() );  
+      sheet.getRangeByIndex(row, 24).setText( reportesDow.value![i]['codDiag1'].toString() == '' ? '0': reportesDow.value![i]['codDiag1'].toString() );  
+      sheet.getRangeByIndex(row, 25).setText( reportesDow.value![i]['codDiag2'].toString() == '' ? '0': reportesDow.value![i]['codDiag2'].toString() );  
+      sheet.getRangeByIndex(row, 26).setText( reportesDow.value![i]['codDiag3'].toString() == '' ? '0': reportesDow.value![i]['codDiag3'].toString() );  
       sheet.getRangeByIndex(row, 27).setText( reportesDow.value![i]['tipo_diag'].toString() );  
       sheet.getRangeByIndex(row, 28).setText( "Médico (a) general" );  
       sheet.getRangeByIndex(row, 29).setText( _boolToStringOption(reportesDow.value![i]['vacunas'].toString()) );  
       sheet.getRangeByIndex(row, 30).setText( reportesDow.value![i]['peso'].toString() );  
       sheet.getRangeByIndex(row, 31).setText( reportesDow.value![i]['talla'].toString() );  
-      sheet.getRangeByIndex(row, 32).setText( "" ); //talla cm ;  
+      sheet.getRangeByIndex(row, 32).setFormula( "=+AE$row*100" ); //talla cm ; 
       sheet.getRangeByIndex(row, 33).setText( reportesDow.value![i]['frecuencia_cardiaca'].toString() );  
       sheet.getRangeByIndex(row, 34).setText( _boolToStringOption(reportesDow.value![i]['glucometria'].toString()) );  
       sheet.getRangeByIndex(row, 35).setText( reportesDow.value![i]['res_glucometria'].toString() );  
@@ -212,11 +218,11 @@ class RegistrosController extends GetxController{
       sheet.getRangeByIndex(row, 71).setText( _boolToStringOption(reportesDow.value![i]['diabetes'].toString()) );  
       sheet.getRangeByIndex(row, 72).setText( _boolToStringOption(reportesDow.value![i]['epoc'].toString()) );  
       sheet.getRangeByIndex(row, 73).setText( _boolToStringOption(reportesDow.value![i]['cancer'].toString()) );  
-      sheet.getRangeByIndex(row, 74).setText( _boolToStringOption(reportesDow.value![i]['tipo_cancer'].toString()) );  
-      sheet.getRangeByIndex(row, 75).setText( _boolToStringOption(reportesDow.value![i]['otra_cronica'].toString()) ); 
+      sheet.getRangeByIndex(row, 74).setText( reportesDow.value![i]['tipo_cancer'].toString() );  
+      sheet.getRangeByIndex(row, 75).setText( reportesDow.value![i]['otra_cronica'].toString() ); 
 
       //gestante
-      sheet.getRangeByIndex(row, 76).setText( "" ); 
+      sheet.getRangeByIndex(row, 76).setText( _boolToStringOption(reportesDow.value![i]['usuario_gestante'].toString()) ); 
       sheet.getRangeByIndex(row, 77).setText( "" ); 
       sheet.getRangeByIndex(row, 78).setText( "" ); 
       sheet.getRangeByIndex(row, 79).setText( "" ); 
@@ -262,7 +268,7 @@ class RegistrosController extends GetxController{
 
   _boolToStringOption( String option ){
 
-    if(option == null) return "";
+    if(option == null || option == "") return "";
 
     return option.toLowerCase() == "true" ? "SI" : "No";
 

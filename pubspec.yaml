@@ -44,6 +44,7 @@ dependencies:
   syncfusion_flutter_xlsio: ^20.4.44-beta
   open_file: ^3.2.1
   font_awesome_flutter: ^10.3.0
+  local_auth: ^2.1.5
 
 dev_dependencies:
   # The "flutter_lints" package below contains a set of recommended lints to

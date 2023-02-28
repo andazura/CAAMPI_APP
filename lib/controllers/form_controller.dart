@@ -18,7 +18,7 @@ class FormController extends GetxController{
   var direccion = "".obs;
   var telefono = "".obs;
   
-  var tipoDocumento = "CC".obs;
+  var tipoDocumento = "Cédula ciudadanía".obs;
   var documento   = "".obs;
   var nombres     = "".obs;
   var apellidos   = "".obs;
@@ -43,6 +43,7 @@ class FormController extends GetxController{
   var tieneGluco = false.obs;
   var resGluco = "".obs;
   var codDiag = "".obs;
+  var finalidadConsulta = "".obs;
   var codDiag1 = "".obs;
   var codDiag2 = "".obs;
   var codDiag3 = "".obs;
@@ -93,6 +94,8 @@ class FormController extends GetxController{
   var cancer = false.obs;
   var tipo_cancer = "".obs;
   var otra_cronica = "".obs;
+
+  var usuarioGestante = false.obs;
 
 
   
