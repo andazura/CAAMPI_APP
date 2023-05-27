@@ -10,10 +10,7 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 
-final TextEditingController fechaConsultaControler = TextEditingController();
-  final TextEditingController fechaNacimientoControler = TextEditingController();
-  final TextEditingController riesgoFINDRISCController = TextEditingController();
-  final TextEditingController PuntajeFINDRISCController = TextEditingController();
+
 
 class InputsPacienteForm extends StatelessWidget {
 
@@ -38,7 +35,7 @@ class InputsPacienteForm extends StatelessWidget {
           
                 TextField(
                   readOnly: true,
-                  controller: fechaConsultaControler,
+                  controller: formCtrl.fechaConsultaControler.value,
                   decoration: const InputDecoration(
                     icon: Icon( Icons.calendar_month_outlined),
                     hintText: "Fecha Consulta"
@@ -48,8 +45,8 @@ class InputsPacienteForm extends StatelessWidget {
                                 showTitleActions: true,
                                 maxTime: DateTime.now(),
                                 onConfirm: (date) {
-                                   fechaConsultaControler.text = "${date.day.toString().padLeft(2,'0')}/${date.month.toString().padLeft(2,'0')}/${date.year}";
-                                   formCtrl.fechaConsulta.value = fechaConsultaControler.text;
+                                   formCtrl.fechaConsultaControler.value!.text = "${date.day.toString().padLeft(2,'0')}/${date.month.toString().padLeft(2,'0')}/${date.year}";
+                                   formCtrl.fechaConsulta.value = formCtrl.fechaConsultaControler.value!.text;
                                 }, currentTime: DateTime.now(), locale: LocaleType.es);
                   },
                 ),
@@ -112,7 +109,7 @@ class InputsPacienteForm extends StatelessWidget {
                 const Text("Fecha de nacimiento", style: TextStyle(fontWeight: FontWeight.bold, ),),
                 TextField(
                   readOnly: true,
-                  controller: fechaNacimientoControler,
+                  controller: formCtrl.fechaNacimientoControler.value,
                   decoration: const InputDecoration(
                     icon: Icon( Icons.calendar_month_outlined),
                     hintText: "Fecha nacimiento del usuario"
@@ -126,7 +123,7 @@ class InputsPacienteForm extends StatelessWidget {
                                   final ahora = DateTime.now();
                                   final diferencia = ahora.difference(date);
                                   formCtrl.anos.value = diferencia.inDays / 365;
-                                  fechaNacimientoControler.text = "${date.day.toString().padLeft(2,'0')}/${date.month.toString().padLeft(2,'0')}/${date.year}";
+                                  formCtrl.fechaNacimientoControler.value!.text = "${date.day.toString().padLeft(2,'0')}/${date.month.toString().padLeft(2,'0')}/${date.year}";
                                   formCtrl.fechaNacimineto.value = "${date.day.toString().padLeft(2,'0')}/${date.month.toString().padLeft(2,'0')}/${date.year}";
                                   calculaFindrisk( );
                                 }, currentTime: DateTime.now(), locale: LocaleType.es);
@@ -229,13 +226,13 @@ class InputsPacienteForm extends StatelessWidget {
                 const Preguntasfindrisk(),
                 const Text("Puntaje Escala FINDRISC (Tamizaje)", style: TextStyle(fontWeight: FontWeight.bold, )),
                 CustomInput(icon: Icons.person , placeholder: "", textInputType: TextInputType.text,
-                textController: PuntajeFINDRISCController,
+                textController: formCtrl.puntajeFINDRISCController.value,
                 //initialValue: formCtrl.puntajeFINDRISC.value,
                 onchange: (p0) {
                   formCtrl.puntajeFINDRISC.value = p0.toString() == "" ? "NA" : p0.toString();
 
                   if(formCtrl.puntajeFINDRISC.value == "" || formCtrl.puntajeFINDRISC.value.toLowerCase() == "na"){
-                    riesgoFINDRISCController.text = "";
+                    formCtrl.riesgoFINDRISCController.value!.text = "";
                     return;
                   } 
 
@@ -244,7 +241,7 @@ class InputsPacienteForm extends StatelessWidget {
 
                 const Text("Clasificación Riesgo Escala FINDRISC (Tamizaje)", style: TextStyle(fontWeight: FontWeight.bold, )),
 
-                CustomInput(icon: Icons.person , placeholder: "", textController: riesgoFINDRISCController, textInputType: TextInputType.text,enable: false,
+                CustomInput(icon: Icons.person , placeholder: "", textController: formCtrl.riesgoFINDRISCController.value, textInputType: TextInputType.text,enable: false,
                     
                     onchange: (p0) {
 
@@ -259,6 +256,14 @@ class InputsPacienteForm extends StatelessWidget {
 
                 const _enfermedadCronica(),
 
+                const OrdenPsicologia(),
+
+                const Text("Vacunación en casa"),
+                const Vacuna(),
+                  Obx( ()=>
+                    formCtrl.vacunacionCasa.value == "SI" ? CustomDropdownVacunaQuien() : const Divider()
+                  ),
+
                 const UsuarioGestante(),                
 
                 const SizedBox( height: 100 ),
@@ -266,6 +271,31 @@ class InputsPacienteForm extends StatelessWidget {
             ),
           ),
     );
+  }
+}
+
+
+class Vacuna extends StatefulWidget {
+  const Vacuna({super.key});
+
+  @override
+  State<Vacuna> createState() => _VacunaState();
+}
+
+class _VacunaState extends State<Vacuna> {
+
+  final formCtrl = Get.find<FormController>();
+
+  @override
+  Widget build(BuildContext context) {
+    
+    return radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.vacunacionCasa.value,
+                  onchange: (p0) {
+                    setState(() {
+                              formCtrl.vacunacionCasa.value =  p0.toString();
+                    });
+                  },
+            );
   }
 }
 
@@ -559,7 +589,7 @@ class _PreguntasfindriskState extends State<Preguntasfindrisk> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("si (abuelos, tíos, primos)"),
+                    const Text("si (abuelos, tíos, primos)"),
                     Checkbox(
                         value: formCtrl.abuetioprimos.value,
                         onChanged: (bool? value) { 
@@ -576,7 +606,7 @@ class _PreguntasfindriskState extends State<Preguntasfindrisk> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("si (padres, hermanos, hijos)"),
+                    const Text("si (padres, hermanos, hijos)"),
                     Checkbox(
                         value: formCtrl.padrehermhijos.value,
                         onChanged: (bool? value) { 
@@ -591,7 +621,7 @@ class _PreguntasfindriskState extends State<Preguntasfindrisk> {
                 ),
               ],
             )
-          : Divider()
+          : const Divider()
         )
       ]
     );
@@ -682,10 +712,11 @@ class _CheckVacunasState extends State<_CheckVacunas> {
 
     final formCtrl = Get.find<FormController>();
     return 
-      Row(
+      Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text("Esquema de vacunación completo (SI/NO)"),
+          const Text("Esquema de vacunación completo (SI/NO)", overflow: TextOverflow.fade, maxLines: 2,),
           Checkbox(
             value: formCtrl.vacunasAlDia.value,
             onChanged: (bool? value) { 
@@ -825,7 +856,6 @@ class _AutoCompleteDiagnosticoState extends State<AutoCompleteDiagnostico> {
             final sugg =  await DBProvider.db.getDiagnosticosQuery( textEditingValue.text );
            
 
-
             final lsi1 = sugg
                 .where(
                   (DiagnosticoModel county) => county.nombre.toLowerCase()
@@ -860,7 +890,7 @@ class _AutoCompleteDiagnosticoState extends State<AutoCompleteDiagnostico> {
                   width: 300,
                   color: Colors.cyan[300],
                   child: ListView.builder(
-                    padding: EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.all(10.0),
                     itemCount: options.length,
                     itemBuilder: (BuildContext context, int index) {
                       final DiagnosticoModel option = options.elementAt(index);
@@ -889,8 +919,8 @@ void calculaFindrisk(  ) async {
   int puntaje = 0;
 
   if(formCtrl.anos.value < 18){
-    PuntajeFINDRISCController.text = "NA";
-    riesgoFINDRISCController.text = "NA";
+    formCtrl.puntajeFINDRISCController.value!.text = "NA";
+    formCtrl.riesgoFINDRISCController.value!.text = "NA";
     formCtrl.puntajeFINDRISC.value = "NA";
     formCtrl.riesgoFINDRISC.value = "NA";
     return;
@@ -949,7 +979,7 @@ void calculaFindrisk(  ) async {
   puntaje += formCtrl.abuetioprimos.value == true ? 3 : 0;
   puntaje += formCtrl.padrehermhijos.value == true ? 5 : 0;
   
-  PuntajeFINDRISCController.text = puntaje.toString();
+  formCtrl.puntajeFINDRISCController.value!.text = puntaje.toString();
   formCtrl.puntajeFINDRISC.value = puntaje.toString();
   
    calculaRiesgo();
@@ -960,40 +990,40 @@ calculaRiesgo(){
 
   final formCtrl = Get.find<FormController>();
 
-  riesgoFINDRISCController.text = "";
+  formCtrl.riesgoFINDRISCController.value!.text = "";
   int? puntaje = int.tryParse(formCtrl.puntajeFINDRISC.value);
 
   if(puntaje != null){
     if( puntaje >= 0 && puntaje <=7 ){
-    riesgoFINDRISCController.text = "Nivel de riesgo bajo";
-    formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;
+    formCtrl.riesgoFINDRISCController.value!.text = "Nivel de riesgo bajo";
+    formCtrl.riesgoFINDRISC.value = formCtrl.riesgoFINDRISCController.value!.text;
     return;
     }
     if( puntaje >= 8 && puntaje <=11 ){
-      riesgoFINDRISCController.text = "Nivel de riesgo ligeramente elevado";
-      formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;
+      formCtrl.riesgoFINDRISCController.value!.text = "Nivel de riesgo ligeramente elevado";
+      formCtrl.riesgoFINDRISC.value = formCtrl.riesgoFINDRISCController.value!.text;
       return;
     }
     if( puntaje >= 12 && puntaje <=14 ){
-      riesgoFINDRISCController.text = "Nivel de riesgo moderado";
-      formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;
+      formCtrl.riesgoFINDRISCController.value!.text = "Nivel de riesgo moderado";
+      formCtrl.riesgoFINDRISC.value = formCtrl.riesgoFINDRISCController.value!.text;
       return;
     }
     if( puntaje >= 15 && puntaje <=20 ){
-      riesgoFINDRISCController.text = "Nivel de riesgo alto";
-      formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;
+      formCtrl.riesgoFINDRISCController.value!.text = "Nivel de riesgo alto";
+      formCtrl.riesgoFINDRISC.value = formCtrl.riesgoFINDRISCController.value!.text;
       return;
     }
     if( puntaje >= 21 ){
-      riesgoFINDRISCController.text = "Nivel de riesgo muy alto";
-      formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;
+      formCtrl.riesgoFINDRISCController.value!.text = "Nivel de riesgo muy alto";
+      formCtrl.riesgoFINDRISC.value = formCtrl.riesgoFINDRISCController.value!.text;
       return;
     }
-    formCtrl.riesgoFINDRISC.value = riesgoFINDRISCController.text;
+    formCtrl.riesgoFINDRISC.value = formCtrl.riesgoFINDRISCController.value!.text;
 
   }else{
     formCtrl.puntajeFINDRISC.value = "NA";
-    riesgoFINDRISCController.text = "";
+    formCtrl.riesgoFINDRISCController.value!.text;
 }
 }
 

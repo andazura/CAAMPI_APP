@@ -14,7 +14,7 @@ class AuthService with ChangeNotifier{
   bool _autenticando = false;
 
   // Create storage
-  final _storage = FlutterSecureStorage();
+  final _storage = const FlutterSecureStorage();
 
   bool get autenticando => this._autenticando;
 
@@ -37,14 +37,14 @@ class AuthService with ChangeNotifier{
 
   Future<bool> login( String email, String password) async{
 
-    this.autenticando = true;
+    autenticando = true;
     
     final data = {
       'email'   : email,
       'password': password
     };
 
-    final uri = Uri.https('${Environment.apiUrl}','/api/login');
+    final uri = Uri.https(Environment.apiUrl,'/api/login');
 
     final resp = await http.post
       (
@@ -55,17 +55,16 @@ class AuthService with ChangeNotifier{
         }
     );
 
-    this.autenticando = false;
+    autenticando = false;
     
     if( resp.statusCode == 200 ){
       try{
         final loginResponse = loginResponseFromJson(resp.body);
-        this.usuario = loginResponse.usuario;
+        usuario = loginResponse.usuario;
         await _guardarToken(loginResponse.token);
         await _guardarCredenciales(email,password);
         return true;
       }catch (e){
-        print("erro");
         return false;
       }
     }else{
@@ -95,11 +94,11 @@ class AuthService with ChangeNotifier{
         }
       );
 
-      this.autenticando = false;
+      autenticando = false;
 
       if( resp.statusCode == 200){
         final loginResponse = loginResponseFromJson(resp.body);
-        this.usuario = loginResponse.usuario;
+        usuario = loginResponse.usuario;
         await _guardarToken(loginResponse.token);
         return true;
       }else{
@@ -113,7 +112,7 @@ class AuthService with ChangeNotifier{
     final token = await this._storage.read(key: 'token');
     if(token == null ) return false;
 
-    final uri = Uri.https('${Environment.apiUrl}','/api/login/renew');
+    final uri = Uri.https(Environment.apiUrl,'/api/login/renew');
 
     final resp = await http.get
     (
@@ -126,7 +125,7 @@ class AuthService with ChangeNotifier{
 
     if( resp.statusCode == 200){
       final loginResponse = loginResponseFromJson(resp.body);
-      this.usuario = loginResponse.usuario;
+      usuario = loginResponse.usuario;
       await _guardarToken(loginResponse.token);
       return true;
     }else{

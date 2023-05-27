@@ -17,7 +17,7 @@ class RegistrosController extends GetxController{
   void onInit() {
     final date = DateTime.now();
     String fecha = "${date.day.toString().padLeft(2,'0')}/${date.month.toString().padLeft(2,'0')}/${date.year}";
-    getReportes(query: " AND fecha_consulta = '$fecha'");
+    getReportes(query: " AND repo.fecha_consulta = '$fecha'");
     
     super.onInit();
   }
@@ -44,7 +44,7 @@ class RegistrosController extends GetxController{
 
     if( reportesDow.value == null || reportesDow.value!.isEmpty  ){
       
-      mosrtarAlerta(Get.context!, "Error", "No hay reportes para descargar, prueba una nueva consulta");
+      mosrtarAlerta( "Error", "No hay reportes para descargar, prueba una nueva consulta");
       return;
     }
     print("El reg leng ${reportesDow.value!.length} ");
@@ -84,8 +84,8 @@ class RegistrosController extends GetxController{
      
      
      'Perímetro abdominal','Perímetro brazo (Menores de 5 años)',
-     'Orden de laboratorios (incluye tamizajes)','Toma de laboratorios en casa','MEDICAMENTOS',
-     'Dispensación en casa de medicamentos','ADMINISTRACIÓN DE PRUEBA O TRATAMIENTOS FARMACOLOGICOS ',
+     'Orden de laboratorios (incluye tamizajes)', 'Desc laboratorios', 'Toma de laboratorios en casa','MEDICAMENTOS',
+     'Desc medicamentos','Dispensación en casa de medicamentos','ADMINISTRACIÓN DE PRUEBA O TRATAMIENTOS FARMACOLOGICOS ',
      'Prueba / tratamiento','Orden especialidades diferentes a internista/psiquiatría /medicina familiar',
      'Cual orden de especialista','Orden Internista','Orden Psiquiatría','Orden Medicina Familiar',
      'Vacunación en casa','¿Quién?','Orden citología / mamografía / próstata','Orden Psicología',
@@ -117,23 +117,23 @@ class RegistrosController extends GetxController{
       
       if(reportesDow.value![i]['persona_atienede'].toString() == 'true'){
 
-        final resp = await DBProvider.db.getCuidado( query: " AND id_familia = '${reportesDow.value![i]['id_familia']}'" );
+        final resp = await DBProvider.db.getCuidado( query: "AND repo.id_familia = '${reportesDow.value![i]['id_familia']}'" );
         if( resp.isNotEmpty ){
           sheet2.getRangeByName('A$row2:P$row2').cellStyle = globalStyle;
-          sheet2.getRangeByIndex(row2, 1).setText( resp[i]['id_familia'].toString() );  
-          sheet2.getRangeByIndex(row2, 2).setText( resp[i]['localidad'].toString() );  
-          sheet2.getRangeByIndex(row2, 3).setText( resp[i]['estrateegia'].toString() );  
-          sheet2.getRangeByIndex(row2, 4).setText( resp[i]['equipo'].toString() );  
-          sheet2.getRangeByIndex(row2, 5).setText( resp[i]['consecutivo'].toString() );  
-          sheet2.getRangeByIndex(row2, 6).setText( resp[i]['fecha_consulta'].toString() );  
-          sheet2.getRangeByIndex(row2, 7).setText( resp[i]['direccion'].toString() );  
-          sheet2.getRangeByIndex(row2, 8).setText( resp[i]['telefono'].toString() );  
-          sheet2.getRangeByIndex(row2, 9).setText( resp[i]['primer_nombre'].toString() );  
-          sheet2.getRangeByIndex(row2, 10).setText( resp[i]['segundo_nombre'].toString() );  
-          sheet2.getRangeByIndex(row2, 11).setText( resp[i]['primer_apellido'].toString() );  
-          sheet2.getRangeByIndex(row2, 12).setText( resp[i]['segundo_apellido'].toString() );  
-          sheet2.getRangeByIndex(row2, 13).setText( resp[i]['tipo_cc'].toString() );  
-          sheet2.getRangeByIndex(row2, 14).setText( resp[i]['cc'].toString() );
+          sheet2.getRangeByIndex(row2, 1).setText( resp[0]['id_familia'].toString() );  
+          sheet2.getRangeByIndex(row2, 2).setText( resp[0]['localidad'].toString() );  
+          sheet2.getRangeByIndex(row2, 3).setText( resp[0]['estrateegia'].toString() );  
+          sheet2.getRangeByIndex(row2, 4).setText( resp[0]['equipo'].toString() );  
+          sheet2.getRangeByIndex(row2, 5).setText( resp[0]['consecutivo'].toString() );  
+          sheet2.getRangeByIndex(row2, 6).setText( resp[0]['fecha_consulta'].toString() );  
+          sheet2.getRangeByIndex(row2, 7).setText( resp[0]['direccion'].toString() );  
+          sheet2.getRangeByIndex(row2, 8).setText( resp[0]['telefono'].toString() );  
+          sheet2.getRangeByIndex(row2, 9).setText( resp[0]['primer_nombre'].toString() );  
+          sheet2.getRangeByIndex(row2, 10).setText( resp[0]['segundo_nombre'].toString() );  
+          sheet2.getRangeByIndex(row2, 11).setText( resp[0]['primer_apellido'].toString() );  
+          sheet2.getRangeByIndex(row2, 12).setText( resp[0]['segundo_apellido'].toString() );  
+          sheet2.getRangeByIndex(row2, 13).setText( resp[0]['tipo_cc'].toString() );  
+          sheet2.getRangeByIndex(row2, 14).setText( resp[0]['cc'].toString() );
           row2++;
         }
       }
@@ -155,7 +155,7 @@ class RegistrosController extends GetxController{
       sheet.getRangeByIndex(row, 12).setText( "" ); 
       sheet.getRangeByIndex(row, 13).setText( "" ); 
       sheet.getRangeByIndex(row, 14).setText( "" ); 
-      sheet.getRangeByIndex(row, 15).setText( "" ); 
+      sheet.getRangeByIndex(row, 15).setText( "" );
       //
       sheet.getRangeByIndex(row, 16).setText( reportesDow.value![i]['sexo'].toString() );  
       sheet.getRangeByIndex(row, 17).setText( reportesDow.value![i]['regimen'].toString() );  
@@ -172,8 +172,8 @@ class RegistrosController extends GetxController{
       sheet.getRangeByIndex(row, 28).setText( "Médico (a) general" );  
       sheet.getRangeByIndex(row, 29).setText( _boolToStringOption(reportesDow.value![i]['vacunas'].toString()) );  
       sheet.getRangeByIndex(row, 30).setText( reportesDow.value![i]['peso'].toString() );  
-      sheet.getRangeByIndex(row, 31).setText( reportesDow.value![i]['talla'].toString() );  
-      sheet.getRangeByIndex(row, 32).setFormula( "=+AE$row*100" ); //talla cm ; 
+      sheet.getRangeByIndex(row, 31).setNumber(  double.tryParse(reportesDow.value![i]['talla'].toString().replaceAll(RegExp(r','), '.') ) ?? 0.0 );  
+      sheet.getRangeByIndex(row, 32).setText( "" ); //talla cm ; 
       sheet.getRangeByIndex(row, 33).setText( reportesDow.value![i]['frecuencia_cardiaca'].toString() );  
       sheet.getRangeByIndex(row, 34).setText( _boolToStringOption(reportesDow.value![i]['glucometria'].toString()) );  
       sheet.getRangeByIndex(row, 35).setText( reportesDow.value![i]['res_glucometria'].toString() );  
@@ -190,41 +190,46 @@ class RegistrosController extends GetxController{
       sheet.getRangeByIndex(row, 43).setText( reportesDow.value![i]['perimetro_abfominal'].toString() );  
       sheet.getRangeByIndex(row, 44).setText( reportesDow.value![i]['perimetro_brazo'].toString() );  
       sheet.getRangeByIndex(row, 45).setText( reportesDow.value![i]['ordena_lab'].toString() );  
-      sheet.getRangeByIndex(row, 46).setText( reportesDow.value![i]['lab_en_casa'].toString() );  
-      sheet.getRangeByIndex(row, 47).setText( reportesDow.value![i]['ordena_med'].toString() );  
-      sheet.getRangeByIndex(row, 48).setText( reportesDow.value![i]['med_en_casa'].toString() );  
-      sheet.getRangeByIndex(row, 49).setText( reportesDow.value![i]['prueba_tratamientos'].toString() );  
-      sheet.getRangeByIndex(row, 50).setText( reportesDow.value![i]['cual_prueba_tratamientos'].toString() );  
-      sheet.getRangeByIndex(row, 51).setText( reportesDow.value![i]['otra_especialidad'].toString() );  
-      sheet.getRangeByIndex(row, 52).setText( reportesDow.value![i]['cual_otra_especialidad'].toString() );  
-      sheet.getRangeByIndex(row, 53).setText( reportesDow.value![i]['orden_internista'].toString() );  
-      sheet.getRangeByIndex(row, 54).setText( reportesDow.value![i]['orden_psiquiatria'].toString() );  
-      sheet.getRangeByIndex(row, 55).setText( reportesDow.value![i]['orden_med_familiar'].toString() );  
-      sheet.getRangeByIndex(row, 56).setText( reportesDow.value![i]['vacunacion_casa'].toString() );  
-      sheet.getRangeByIndex(row, 57).setText( reportesDow.value![i]['quien_vacunacion'].toString() );  
-      sheet.getRangeByIndex(row, 58).setText( reportesDow.value![i]['orden_citomapro'].toString() );  
-      sheet.getRangeByIndex(row, 59).setText( reportesDow.value![i]['orden_psico'].toString() );  
-      sheet.getRangeByIndex(row, 60).setText( reportesDow.value![i]['numero_controles_ruta'].toString() );  
-      sheet.getRangeByIndex(row, 61).setText( reportesDow.value![i]['clasificacinon_nutricional'].toString() );  
-      sheet.getRangeByIndex(row, 62).setText( reportesDow.value![i]['escala_framingham'].toString() );  
-      sheet.getRangeByIndex(row, 63).setText( reportesDow.value![i]['riesgo_escala_framingham'].toString() );  
-      sheet.getRangeByIndex(row, 64).setText( reportesDow.value![i]['puntaje_findrisk'].toString() );  
-      sheet.getRangeByIndex(row, 65).setText( reportesDow.value![i]['riesgo_findrisk'].toString() );  
-      sheet.getRangeByIndex(row, 66).setText( reportesDow.value![i]['canalizacion_rias'].toString() );  
-      sheet.getRangeByIndex(row, 67).setText( reportesDow.value![i]['canalizacion_subsistema'].toString() );  
-      sheet.getRangeByIndex(row, 68).setText( reportesDow.value![i]['tipo_atencion'].toString() );  
-      sheet.getRangeByIndex(row, 69).setText( _boolToStringOption(reportesDow.value![i]['enfermedad_cronica'].toString()) );  
-      sheet.getRangeByIndex(row, 70).setText( _boolToStringOption(reportesDow.value![i]['hipertension'].toString()) );  
-      sheet.getRangeByIndex(row, 71).setText( _boolToStringOption(reportesDow.value![i]['diabetes'].toString()) );  
-      sheet.getRangeByIndex(row, 72).setText( _boolToStringOption(reportesDow.value![i]['epoc'].toString()) );  
-      sheet.getRangeByIndex(row, 73).setText( _boolToStringOption(reportesDow.value![i]['cancer'].toString()) );  
-      sheet.getRangeByIndex(row, 74).setText( reportesDow.value![i]['tipo_cancer'].toString() );  
-      sheet.getRangeByIndex(row, 75).setText( reportesDow.value![i]['otra_cronica'].toString() ); 
+      sheet.getRangeByIndex(row, 46).setText( reportesDow.value![i]['desc_lab'].toString() );  
+
+
+      sheet.getRangeByIndex(row, 47).setText( reportesDow.value![i]['lab_en_casa'].toString() );  
+      sheet.getRangeByIndex(row, 48).setText( reportesDow.value![i]['ordena_med'].toString() );  
+      sheet.getRangeByIndex(row, 49).setText( reportesDow.value![i]['desc_med'].toString() );  
+      sheet.getRangeByIndex(row, 50).setText( reportesDow.value![i]['med_en_casa'].toString() );  
+
+      sheet.getRangeByIndex(row, 51).setText( reportesDow.value![i]['prueba_tratamientos'].toString() );  
+      sheet.getRangeByIndex(row, 52).setText( reportesDow.value![i]['cual_prueba_tratamientos'].toString() );  
+      sheet.getRangeByIndex(row, 53).setText( reportesDow.value![i]['otra_especialidad'].toString() );  
+      sheet.getRangeByIndex(row, 54).setText( reportesDow.value![i]['cual_otra_especialidad'].toString() );  
+      sheet.getRangeByIndex(row, 55).setText( reportesDow.value![i]['orden_internista'].toString() );  
+      sheet.getRangeByIndex(row, 56).setText( reportesDow.value![i]['orden_psiquiatria'].toString() );  
+      sheet.getRangeByIndex(row, 57).setText( reportesDow.value![i]['orden_med_familiar'].toString() );  
+      sheet.getRangeByIndex(row, 58).setText( reportesDow.value![i]['vacunacion_casa'].toString() );  
+      sheet.getRangeByIndex(row, 59).setText( reportesDow.value![i]['quien_vacunacion'].toString() );  
+      sheet.getRangeByIndex(row, 60).setText( reportesDow.value![i]['orden_citomapro'].toString() );  
+      sheet.getRangeByIndex(row, 61).setText( reportesDow.value![i]['orden_psico'].toString() );  
+      sheet.getRangeByIndex(row, 62).setText( reportesDow.value![i]['numero_controles_ruta'].toString() );  
+      sheet.getRangeByIndex(row, 63).setText( reportesDow.value![i]['clasificacinon_nutricional'].toString() );  
+      sheet.getRangeByIndex(row, 64).setText( reportesDow.value![i]['escala_framingham'].toString() );  
+      sheet.getRangeByIndex(row, 65).setText( reportesDow.value![i]['riesgo_escala_framingham'].toString() );  
+      sheet.getRangeByIndex(row, 66).setText( reportesDow.value![i]['puntaje_findrisk'].toString() );  
+      sheet.getRangeByIndex(row, 67).setText( reportesDow.value![i]['riesgo_findrisk'].toString() );  
+      sheet.getRangeByIndex(row, 68).setText( reportesDow.value![i]['canalizacion_rias'].toString() );  
+      sheet.getRangeByIndex(row, 69).setText( reportesDow.value![i]['canalizacion_subsistema'].toString() );  
+      sheet.getRangeByIndex(row, 70).setText( reportesDow.value![i]['tipo_atencion'].toString() );  
+      sheet.getRangeByIndex(row, 71).setText( _boolToStringOption(reportesDow.value![i]['enfermedad_cronica'].toString()) );  
+      sheet.getRangeByIndex(row, 72).setText( _boolToStringOption(reportesDow.value![i]['hipertension'].toString()) );  
+      sheet.getRangeByIndex(row, 73).setText( _boolToStringOption(reportesDow.value![i]['diabetes'].toString()) );  
+      sheet.getRangeByIndex(row, 74).setText( _boolToStringOption(reportesDow.value![i]['epoc'].toString()) );  
+      sheet.getRangeByIndex(row, 75).setText( _boolToStringOption(reportesDow.value![i]['cancer'].toString()) );  
+      sheet.getRangeByIndex(row, 76).setText( reportesDow.value![i]['tipo_cancer'].toString() );  
+      sheet.getRangeByIndex(row, 77).setText( reportesDow.value![i]['otra_cronica'].toString() ); 
 
       //gestante
-      sheet.getRangeByIndex(row, 76).setText( _boolToStringOption(reportesDow.value![i]['usuario_gestante'].toString()) ); 
-      sheet.getRangeByIndex(row, 77).setText( "" ); 
-      sheet.getRangeByIndex(row, 78).setText( "" ); 
+      sheet.getRangeByIndex(row, 78).setText( _boolToStringOption(reportesDow.value![i]['usuario_gestante'].toString()) ); 
+
+    
       sheet.getRangeByIndex(row, 79).setText( "" ); 
       sheet.getRangeByIndex(row, 80).setText( "" );  
       sheet.getRangeByIndex(row, 81).setText( "" ); 
@@ -246,7 +251,10 @@ class RegistrosController extends GetxController{
 
       sheet.getRangeByIndex(row, 96).setText("" );  
       sheet.getRangeByIndex(row, 97).setText( "" );  
+      sheet.getRangeByIndex(row, 98).setText( "" );  
       sheet.getRangeByIndex(row, 99).setText( "" );  
+      sheet.getRangeByIndex(row, 100).setText( "" );  
+      sheet.getRangeByIndex(row, 101).setText( "" );
 
       row++;
     }

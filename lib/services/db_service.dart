@@ -4,7 +4,6 @@ import 'package:CAAPMI/models/diagnosticos_response.dart';
 import 'package:CAAPMI/models/eps_response.dart';
 import 'package:CAAPMI/models/localidad_response.dart';
 import 'package:CAAPMI/models/regimen_response.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,9 +16,9 @@ class DBProvider{
   static final DBProvider db = DBProvider._();
   DBProvider._();
 
-  static late List<LocalidadesModel> localidades = [];
-  static late List<RegimenModel> regimenes = [];
-  static late List<EpsModel> eps = [];
+  static List<LocalidadesModel> localidades = [];
+  static List<RegimenModel> regimenes = [];
+  static List<EpsModel> eps = [];
 
   Future<Database> get database async {
     if ( _database != null ) return _database!;
@@ -37,18 +36,29 @@ class DBProvider{
 
       return await openDatabase(
         path,
-        version: 3,
+        version: 5,
         onCreate: ( Database db, int version) async {
           await createTableReportes(db);
           await createTableLocalidades(db);
           await createTableRegimenes(db);
           await createTableDiagnosticos(db);
           await createTableEps(db);
+          await createcuidadoFamiliar(db);
         },
-        onUpgrade: (db, oldVersion, newVersion) {
+        onUpgrade: (db, oldVersion, newVersion) async{
 
-            if(oldVersion == 2 || oldVersion == 1){
-              createcuidadoFamiliar(db);
+            if(oldVersion == 4 || oldVersion == 3){
+              try{
+                await  db.execute('''
+              ALTER TABLE reportes ADD COLUMN  desc_lab TEXT DEFAULT "";
+              ''');
+
+              await  db.execute('''
+              ALTER TABLE reportes ADD COLUMN  desc_med TEXT DEFAULT "";
+              ''');
+              }catch (e){
+                print("error");
+              }
             }
         },
         );
@@ -112,8 +122,10 @@ class DBProvider{
                 perimetro_abfominal TEXT,
                 perimetro_brazo TEXT,
                 ordena_lab TEXT,
+                desc_lab TEXT DEFAULT "",
                 lab_en_casa TEXT,
                 ordena_med TEXT,
+                desc_med TEXT DEFAULT "",
                 med_en_casa TEXT,
                 prueba_tratamientos TEXT,
                 cual_prueba_tratamientos TEXT,
@@ -235,25 +247,11 @@ class DBProvider{
     return res;
   }
 
-  Future<int> deleteAllScan(  ) async{
-    final db = await database;
-    final res = await db.rawDelete( '''
-      DELETE FROM Scans
-    ''' );
-    return res;
-  }
-
-
-  // Future truncateTables() async{
-  //   final db = await database;
-  //   await db.execute("DELETE FROM reportes");
-  //   await db.execute("DELETE FROM reportes_cuidad");
-  // }
-
-  Future<List<Map<String, Object?>>> getReportes( { String? query = ""} ) async{
+  Future<List<Map<String, Object?>>> getReportes( { String? query = "", String? join = ""} ) async{
 
     final db = await database;
-    final res = await db.rawQuery("SELECT * FROM reportes WHERE 1 $query");
+    print("SELECT * FROM reportes repo $join WHERE 1 $query order by consecutivo asc");
+    final res = await db.rawQuery("SELECT * FROM reportes repo $join WHERE 1 $query order by consecutivo asc");
 
     return res;
   }
@@ -264,29 +262,35 @@ class DBProvider{
 
     final res = await db.rawQuery('''
                 SELECT
-                  r.id_familia,
-                  r.tipo_cc,
-                  r.cc,
-                  r.localidad,
-                  r.estrateegia,
-                  r.equipo,
-                  r.consecutivo,
-                  r.fecha_consulta,
+                  repo.id_familia,
+                  repo.tipo_cc,
+                  repo.cc,
+                  repo.localidad,
+                  repo.estrateegia,
+                  repo.equipo,
+                  repo.consecutivo,
+                  repo.fecha_consulta,
                   rc.direccion,
                   rc.telefono,
-                  r.primer_nombre,
-                  r.segundo_nombre,
-                  r.primer_apellido,
-                  r.segundo_apellido
-                FROM reportes r
-                INNER JOIN reportes_cuidad rc on r.consecutivo = rc.consecutivo
-                WHERE r.persona_atienede = 'true'
+                  repo.primer_nombre,
+                  repo.segundo_nombre,
+                  repo.primer_apellido,
+                  repo.segundo_apellido
+                FROM reportes repo
+                INNER JOIN reportes_cuidad rc on repo.consecutivo = rc.consecutivo
+                WHERE repo.persona_atienede = 'true'
                 $query ''');
 
     return res;
   }
 
-  Future<int> insertRegistro( ) async{
+  
+  Future<int> insertRegistro( int? idAutoReportes  ) async{
+      
+
+      if( idAutoReportes != null ){
+        await delReporte(idAutoReportes);
+      }
 
       final f = Get.find<FormController>();
       final db = await database;
@@ -306,8 +310,8 @@ class DBProvider{
       "regimen,eapb,nacionalidad,grupo_poblacion,codigo_consulta,"
       "finlidad_consulta,codDiag,codDiag1,codDiag2,codDiag3,tipo_diag,"
       "vacunas,peso,talla,frecuencia_cardiaca,glucometria,"
-      "res_glucometria,tamhg,perimetro_abfominal,perimetro_brazo,ordena_lab,"
-      "lab_en_casa,ordena_med,med_en_casa,prueba_tratamientos,cual_prueba_tratamientos,"
+      "res_glucometria,tamhg,perimetro_abfominal,perimetro_brazo,ordena_lab,desc_lab,"
+      "lab_en_casa,ordena_med,desc_med,med_en_casa,prueba_tratamientos,cual_prueba_tratamientos,"
       "otra_especialidad,cual_otra_especialidad,orden_internista,orden_psiquiatria,orden_med_familiar,"
       "vacunacion_casa,quien_vacunacion,orden_citomapro,orden_psico,numero_controles_ruta,"
       "clasificacinon_nutricional,escala_framingham,riesgo_escala_framingham,puntaje_findrisk,riesgo_findrisk,"
@@ -323,19 +327,23 @@ class DBProvider{
 
       "'${f.codDiag}', '${f.codDiag1}', '${f.codDiag2}', '${f.codDiag3}', '${f.tipoDiagnostico}',"
       "'${f.vacunasAlDia}', '${f.peso}', '${f.talla}', '${f.frecuenciaC}', '${f.tieneGluco}',"
-      "'${f.resGluco}', '${f.tamhg}', '${f.perimetroAbdominal}', '${f.perimetroBrazo}', '${f.laboratorios}',"
-      "'${f.laboratoriosenCasa}', '${f.medicamentos}', '${f.medicamentosenCasa}', '${f.aplicaTratamientos}', '${f.tratamiento}',"
+      "'${f.resGluco}', '${f.tamhg}', '${f.perimetroAbdominal}', '${f.perimetroBrazo}', '${f.laboratorios}','${f.desclaboratorios}',"
+      "'${f.laboratoriosenCasa}', '${f.medicamentos}', '${f.descmedicamentos}', '${f.medicamentosenCasa}', '${f.aplicaTratamientos}', '${f.tratamiento}',"
       "'${f.especialidadesDiff}', '${f.especialidad}', '${f.ordenInternitsa}', '${f.ordenPsiqui}', '${f.ordenMedFamiliar}',"
       "'${f.vacunacionCasa}','${f.vacunaQuien}', '${f.citomapro}', '${f.ordenPsico}', '0',"
       "'','','','${f.puntajeFINDRISC}', '${f.riesgoFINDRISC}',"
       "'${f.canalizacion_rias}','No aplica', '${f.tipo_atencion}', '${f.enfermedad_cronica}','${f.hipertension}',"
-      "'${f.diabetes}', '${f.epoc}', '${f.cancer}' ,'${f.tipo_cancer}', '${f.otra_cronica}', '${f.usuarioGestante}'"
+      "'${f.diabetes}', '${f.epoc}', '${f.cancer}' ,'${f.tipo_cancer}', '${f.otra_cronica}', '${f.usuarioGestante}',"
       "'')");
 
       if(f.personaAtiende.value){
 
-        await db.rawInsert("INSERT INTO reportes_cuidad"
+        if(f.idAutoReportes.value != null){
+          await db.update("reportes_cuidad", { "direccion": '${f.direccion}', 'telefono':'${f.telefono}'}, where: '${f.consecutivo}' );
+        }else{
+          await db.rawInsert("INSERT INTO reportes_cuidad"
         "(consecutivo,direccion,telefono) VALUES ('${f.consecutivo}','${f.direccion}','${f.telefono}')");
+        }
       }
 
       return res;
@@ -386,12 +394,13 @@ class DBProvider{
   Future<List<DiagnosticoModel>> getDiagnosticosQuery( String query ) async {
     final db = await database;
     
-    final sql = "SELECT * FROM Diagnosticos WHERE Nombre lIKE ('%$query%') OR Codigo LIKE ('%$query%') LIMIT 20";
+    final sql = "SELECT * FROM Diagnosticos WHERE Nombre lIKE ('%$query%') OR Codigo LIKE ('%$query%')";
     
     final res = await db.rawQuery(sql);
     if( res.isNotEmpty ){
         final res2 = res.map(( dg ) =>  DiagnosticoModel.fromJson( dg )).toList();
-        return res2;
+        final restmp =  res2.toSet();
+        return restmp.toList();
     }else{
       return [];
     }

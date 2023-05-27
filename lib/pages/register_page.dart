@@ -12,17 +12,16 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffF2F2F2),
+      backgroundColor: const Color(0xffF2F2F2),
       body: SafeArea(
         child: SingleChildScrollView(
           primary: false,
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Container(
-            height: MediaQuery.of(context).size.height * 0.9,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Logo(titulo: "Registro",),
+                const Logo(titulo: "Registro",),
                 _Form(),
                 const Labels(
                     route: 'login',
@@ -55,8 +54,8 @@ class _FormStateState extends State<_Form> {
 
     final authService = Provider.of<AuthService>(context,listen: true);
     return Container(
-      margin: EdgeInsets.only(top: 40),
-      padding: EdgeInsets.symmetric(horizontal: 50),
+      margin: const EdgeInsets.only(top: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 50),
       child: Column(
         children: [
           CustomInput(
@@ -94,12 +93,12 @@ class _FormStateState extends State<_Form> {
   void boton() async {
     final authService = Provider.of<AuthService>(context,listen: false);
     FocusScope.of(context).unfocus();
-    if( nameCtrl.text.trim() == "" || emailCtrl.text.trim() == "" || passwCtrl.text.trim() == "" ) return mosrtarAlerta(context,  "Registro incorrecto" , "Ingrese todos los campos");
+    if( nameCtrl.text.trim() == "" || emailCtrl.text.trim() == "" || passwCtrl.text.trim() == "" ) return mosrtarAlerta(  "Registro incorrecto" , "Ingrese todos los campos");
     final registerOk = await authService.register(nameCtrl.text.trim(),emailCtrl.text.trim(),passwCtrl.text.trim());
     if( registerOk == true ){
       Navigator.popAndPushNamed(context, 'form_registro');
     }else{
-      mosrtarAlerta(context,  "Registro incorrecto" , registerOk,);
+      mosrtarAlerta(  "Registro incorrecto" , registerOk,);
     }
   }
 }

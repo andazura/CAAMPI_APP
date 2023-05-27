@@ -1,6 +1,5 @@
 import 'package:CAAPMI/controllers/auth_controllers.dart';
 import 'package:CAAPMI/helpers/alertas.dart';
-import 'package:CAAPMI/pages/menu_page.dart';
 import 'package:CAAPMI/services/auth_service.dart';
 import 'package:CAAPMI/services/utils_service.dart';
 import 'package:CAAPMI/widgets/widgets.dart';
@@ -17,21 +16,18 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffF2F2F2),
+      backgroundColor: const Color(0xffF2F2F2),
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.9,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Logo(titulo: "CAAPMI"),
-                _Form(),
-                const Labels( route: 'register', label: "¿No tienes cuenta?", label2: "Crea una ahora!" ),
-                const Text("Terminso y condiciones de uso", style: TextStyle(fontWeight: FontWeight.w200),)
-              ],
-            ),
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Logo(titulo: "CAAPMI"),
+              _Form(),
+              const Labels( route: 'register', label: "¿No tienes cuenta?", label2: "Crea una ahora!" ),
+              const Text("Terminso y condiciones de uso", style: TextStyle(fontWeight: FontWeight.w200),)
+            ],
           ),
         ),
       )
@@ -57,8 +53,8 @@ class _FormStateState extends State<_Form> {
     final authService = Provider.of<AuthService>(context, listen: true);
     
     return Container(
-      margin: EdgeInsets.only(top: 40),
-      padding: EdgeInsets.symmetric(horizontal: 50),
+      margin: const EdgeInsets.only(top: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 50),
       child: Column(
         children: [
           CustomInput(
@@ -86,7 +82,7 @@ class _FormStateState extends State<_Form> {
           Obx(() => 
             auController.canAuth.value!
             ? _auth_bio(auController: auController, onPressed: loginBiometrics,)
-            : SizedBox()
+            : const SizedBox()
           )
         ],
       ),
@@ -97,14 +93,17 @@ class _FormStateState extends State<_Form> {
     final authService = Provider.of<AuthService>(context, listen: false);
     FocusScope.of(context).unfocus();
 
-    if ( emailCtrl.text.trim() == "" || passwCtrl.text.trim() == "" ) return  mosrtarAlerta(context, "Credenciales invalidas", "Intenta de nuevo");;
+    if ( emailCtrl.text.trim() == "" || passwCtrl.text.trim() == "" ) return  mosrtarAlerta( "Credenciales invalidas", "Intenta de nuevo");
+    showLoadingMessage(mensaje: "Iniciando sesión");
     final loginOk = await authService.login(emailCtrl.text.trim(), passwCtrl.text.trim());
+    Navigator.pop(context);
     if( loginOk ){
-      
-     await getDataToRegistro();
+      showLoadingMessage(mensaje: "Descargando información necesaria");
+      await getDataToRegistro();
+      Navigator.pop(context);
       Navigator.pushReplacementNamed(context, "menu");
     }else{
-      mosrtarAlerta(context, "Credenciales invalidas", "Intenta de nuevo");
+      mosrtarAlerta( "Credenciales invalidas", "Intenta de nuevo");
     }
   }
 
@@ -113,10 +112,10 @@ class _FormStateState extends State<_Form> {
     final authService = Provider.of<AuthService>(context, listen: false);
     final credenciales = await authService.getCredenciales();
         if(credenciales!.isEmpty){
-          mosrtarAlerta(context, "Error", "Aun no te has logueado, ingresa para posteriormente usar Face Id");
+          mosrtarAlerta( "Error", "Aun no te has logueado, ingresa para posteriormente usar Face Id");
           return;
         }
-        final auth = await auController.Autenticar();
+        final auth = await auController.autenticar();
         if(auth){
           emailCtrl.text = credenciales[0];
           passwCtrl.text = credenciales[1];
@@ -153,6 +152,6 @@ class _auth_bio extends StatelessWidget {
     
     return IconButton(
       onPressed: onPressed,
-    icon: Icon(FontAwesomeIcons.fingerprint));
+    icon: const Icon(FontAwesomeIcons.fingerprint));
   }
 }

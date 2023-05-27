@@ -14,6 +14,7 @@ class CustomInput extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool? enable;
   final FocusNode? focusNode;
+  final Function(PointerDownEvent)? onTapOutside;
 final void Function()? onediting; 
 
   const CustomInput({
@@ -29,7 +30,7 @@ final void Function()? onediting;
     this.validator,
     this.enable,
     this.onediting,
-    this.focusNode
+    this.focusNode, this.onTapOutside
   });
 
 
@@ -42,8 +43,8 @@ final void Function()? onediting;
     } 
 
     return Container(
-      margin: EdgeInsets.only(bottom: 30),
-            padding: EdgeInsets.only(top: 5, left: 5, bottom: 5, right: 20),
+      margin: const EdgeInsets.only(bottom: 30),
+            padding: const EdgeInsets.only(top: 5, left: 5, bottom: 5, right: 20),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(30),
@@ -56,6 +57,7 @@ final void Function()? onediting;
               ]
             ),
             child: TextFormField(
+              onTapOutside: onTapOutside,
               enabled: enable,
               initialValue: textController != null ? null : initialValue,
               validator: validator,

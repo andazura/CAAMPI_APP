@@ -16,14 +16,14 @@ class BotonAzul extends StatelessWidget {
               backgroundColor: onPress == null
               ? MaterialStateProperty.all(Colors.grey)
               : MaterialStateProperty.all(Colors.blue),
-              shape: MaterialStateProperty.all(StadiumBorder())
+              shape: MaterialStateProperty.all(const StadiumBorder())
             ),
             onPressed: onPress,
             child: Container(
               width: double.infinity,
               height: 55,
               child: Center(
-                child: Text(textButton, style:  TextStyle( color: Colors.white, fontSize: 17),),
+                child: Text(textButton, style:  const TextStyle( color: Colors.white, fontSize: 17),),
               ),
             ),
     );

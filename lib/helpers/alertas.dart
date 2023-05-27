@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 
-mosrtarAlerta( BuildContext context2, String titulo, String subtitulo) {
+mosrtarAlerta( String titulo, String subtitulo) {
 
   final context = Get.context!;
   if( Platform.isAndroid ){
@@ -15,10 +15,10 @@ mosrtarAlerta( BuildContext context2, String titulo, String subtitulo) {
         content: Text( subtitulo ),
         actions: [
           MaterialButton(
-            child: Text("Ok"),
             elevation: 5,
             textColor: Colors.blue,
-            onPressed: () => Navigator.pop(context)
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Ok")
           )
         ],
       )
@@ -33,10 +33,49 @@ mosrtarAlerta( BuildContext context2, String titulo, String subtitulo) {
       actions: [
         CupertinoDialogAction(
           isDefaultAction: true,
-          child: Text("Ok"),
+          child: const Text("Ok"),
           onPressed: () => Navigator.pop(context),
         )
       ],
     )
   );
+}
+
+
+showLoadingMessage({String? mensaje}){
+
+  final context = Get.context!;
+  if( Platform.isAndroid ){
+      showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: mensaje == null ?  const Text("Espere por favor") : Text(mensaje),
+        content: Container(
+          margin: const EdgeInsets.only( top: 10 ),
+          width: 100,
+          height: 100,
+          child: Column(
+            children: const [
+              Text(""),
+              SizedBox( height:  15 ),
+              CircularProgressIndicator( strokeWidth: 3, color: Colors.black, )
+            ],
+          ),
+        ),
+      ) 
+    );
+    return;
+  }
+  
+  showCupertinoDialog(
+    context: context,
+    builder: (context) =>  CupertinoAlertDialog(
+      title: mensaje == null ?  const Text("Espere por favor") : Text(mensaje),
+      content: const Padding(
+        padding: EdgeInsets.only(top: 15),
+        child: CupertinoActivityIndicator()),
+    )
+    );
+
 }

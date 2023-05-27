@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:CAAPMI/controllers/form_controller.dart';
+import 'package:CAAPMI/helpers/alertas.dart';
 import 'package:CAAPMI/pages/pages.dart';
 import 'package:CAAPMI/services/auth_service.dart';
 import 'package:CAAPMI/services/menu_service.dart';
@@ -28,11 +29,11 @@ class FormRegistroPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(authService.usuario.nombre, style: TextStyle( color: Colors.black54) ),
+        title: Text(authService.usuario.nombre, style: const TextStyle( color: Colors.black54) ),
         elevation: 20,
         backgroundColor: Colors.white,
         leading: IconButton(
-          icon: Icon( Icons.exit_to_app, color: Colors.black54 ),
+          icon: const Icon( Icons.exit_to_app, color: Colors.black54 ),
           onPressed: () {
             // todo desconectarnos del sokcet
             Navigator.pushReplacementNamed(context, 'login');
@@ -41,8 +42,8 @@ class FormRegistroPage extends StatelessWidget {
         ),
         actions: [
           Container(
-            margin: EdgeInsets.only(right: 10),
-            child: Icon( Icons.check_circle, color: Colors.blue,),
+            margin: const EdgeInsets.only(right: 10),
+            child: const Icon( Icons.check_circle, color: Colors.blue,),
             // child: Icon( Icons.offline_bolt, color: Colors.red,),
           )
         ],
@@ -75,7 +76,7 @@ class FormRegistroPage extends StatelessWidget {
 
                   Obx(()=>
 
-                    formCtrl.eps.value == "CAPITAL SALUD" && formCtrl.regimen.value ==  "Subsidiado"
+                    ((formCtrl.eps.value == "CAPITAL SALUD" || formCtrl.eps.value == "ASMET SALUD EPS S.A.S.")   && formCtrl.regimen.value ==  "Subsidiado")
                     ? FormGeneral(
                         titulo: "Ordenes y Medicamentos",
                         iconoSeccion: FontAwesomeIcons.syringe,
@@ -98,6 +99,12 @@ class FormRegistroPage extends StatelessWidget {
             heroTag: null,
             child: const Icon( Icons.save ) ,
             onPressed: () async { 
+
+              if(
+                formCtrl.fechaConsulta.value == "" ||
+                formCtrl.documento.value == "" ||
+                formCtrl.consecutivo.value == ""
+              ) return mosrtarAlerta("Error formulario", "Verifique la fecha documento o consecutivo");
               formCtrl.saveData();        
               menuService.setMenuOpt("");        
             },
@@ -107,6 +114,15 @@ class FormRegistroPage extends StatelessWidget {
             heroTag: null,
             child: const Icon( Icons.arrow_downward ) ,
             onPressed: () async { 
+              menuService.setMenuOpt("");   
+            },
+          ),
+          const SizedBox(height: 5),
+          FloatingActionButton(
+            heroTag: null,
+            child: const Icon( Icons.restart_alt ) ,
+            onPressed: () async { 
+              formCtrl.resetFormCtrl();
               menuService.setMenuOpt("");   
             },
           ),

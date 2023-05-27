@@ -7,7 +7,6 @@ class AuthController extends GetxController{
 
   @override
   void onInit() async{
-    print("Can autenticate llamdo");
     await canAuthenticate();
     super.onInit();
   }
@@ -21,7 +20,6 @@ class AuthController extends GetxController{
     Future canAuthenticate() async {
       final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
       final bool canAuthenticate = canAuthenticateWithBiometrics || await auth.isDeviceSupported();
-      print("can ${canAuthenticate}");
       if(canAuthenticate){
         await getAvailableBiometrics();
       }
@@ -32,7 +30,7 @@ class AuthController extends GetxController{
       availableBiometrics.value  = await auth.getAvailableBiometrics();
     }
 
-    Future<bool> Autenticar() async {
+    Future<bool> autenticar() async {
       try {
           final bool didAuthenticate = await auth.authenticate(
               localizedReason: 'Por favor autenticate para ingresar');

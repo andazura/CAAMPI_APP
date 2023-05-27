@@ -28,7 +28,7 @@ class FormGeneral extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(top: 25),
               child: Container(
-                padding: EdgeInsets.only(left: 15),
+                padding: const EdgeInsets.only(left: 15),
                 color: isSelected ? Colors.blue : Colors.grey[300],
                 height: 80,
                 child: Row(

@@ -1,6 +1,7 @@
 import 'package:CAAPMI/controllers/form_controller.dart';
 import 'package:CAAPMI/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class InputsOrdenes extends StatelessWidget {
@@ -23,13 +24,11 @@ class InputsOrdenes extends StatelessWidget {
                 const Divider(),
                 const especialidades(),
 
-                Divider(),
+                const Divider(),
                 CustomDropdownOrdenCitoProMa(),
 
-                OrdenPsicologia(),
 
-
-                SizedBox(height: 100,)
+                const SizedBox(height: 100,)
               ]
       )
     );
@@ -58,38 +57,45 @@ class _CheckLaboratoriosState extends State<_CheckLaboratorios> {
       Column(
         children:
         [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text("Orden de laboratorios (incluye tamizajes)"),
-              Checkbox(
-                value: formCtrl.laboratorios.value == "Se ordenaron",
-                onChanged: (bool? value) { 
-                  setState(() {
-                    formCtrl.laboratorios.value =  value == true ? "Se ordenaron" : "No se ordenaron";
-                  });
-                },
-              )
-            ],
+          const Center( child: Text("Orden de laboratorios (incluye tamizajes)")),
+          Checkbox(
+            value: formCtrl.laboratorios.value == "Se ordenaron",
+            onChanged: (bool? value) { 
+              setState(() {
+                formCtrl.laboratorios.value =  value == true ? "Se ordenaron" : "No se ordenaron";
+              });
+            },
           ),
 
-          formCtrl.laboratorios.value ==  "Se ordenaron" ?
+          if(formCtrl.laboratorios.value ==  "Se ordenaron")
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Describa cuales laboratorios"),
+                CustomInput(icon: FontAwesomeIcons.flaskVial, placeholder: "",
+                initialValue: formCtrl.desclaboratorios.value,
+                  onchange: (p0) {
+                    formCtrl.desclaboratorios.value = p0; 
+                  }
+                )
+              ],
+            ),          
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text("Toma de laboratorios en casa"),
-              Checkbox(
-                value: formCtrl.laboratoriosenCasa.value == "Se solicito orden de laboratorios en casa",
-                onChanged: (bool? value) { 
-                  setState(() {
-                    formCtrl.laboratoriosenCasa.value =  value == true ? "Se solicito orden de laboratorios en casa" : "No cumple criterios para laboratorios en casa";
-                  });
-                },
-              )
-            ],
-          )
-          : const SizedBox()
+          if(formCtrl.laboratorios.value ==  "Se ordenaron")
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Toma de laboratorios en casa"),
+                Checkbox(
+                  value: formCtrl.laboratoriosenCasa.value == "Se solicito orden de laboratorios en casa",
+                  onChanged: (bool? value) { 
+                    setState(() {
+                      formCtrl.laboratoriosenCasa.value =  value == true ? "Se solicito orden de laboratorios en casa" : "No cumple criterios para laboratorios en casa";
+                    });
+                  },
+                )
+              ],
+            )
       ]
       );
   }
@@ -129,24 +135,37 @@ class _CheckMedicamentosState extends State<_CheckMedicamentos> {
               )
             ],
           ),
+          if(formCtrl.medicamentos.value ==  "Se ordenaron")
+            Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Describa cuales medicamentos"),
+                  CustomInput(icon: FontAwesomeIcons.pills,
+                  initialValue: formCtrl.descmedicamentos.value,
+                  placeholder: "",
+                    onchange: (p0) {
+                      formCtrl.descmedicamentos.value = p0; 
+                    }
+                  )
+                ],
+            ),
 
-          formCtrl.medicamentos.value == "Se ordenaron" ?
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text("Dispensación en casa de medicamentos"),
-              Checkbox(
-                value: formCtrl.medicamentosenCasa.value == "Se solicito dispensación en casa",
-                onChanged: (bool? value) { 
-                  setState(() {
-                    formCtrl.medicamentosenCasa.value =  value == true ? "Se solicito dispensación en casa" : "No cumple criterios para dispensación en casa";
-                  });
-                },
-              )
-            ],
-          )
-          : const SizedBox()
+          
+          if(formCtrl.medicamentos.value == "Se ordenaron")
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Dispensación en casa de medicamentos"),
+                Checkbox(
+                  value: formCtrl.medicamentosenCasa.value == "Se solicito dispensación en casa",
+                  onChanged: (bool? value) { 
+                    setState(() {
+                      formCtrl.medicamentosenCasa.value =  value == true ? "Se solicito dispensación en casa" : "No cumple criterios para dispensación en casa";
+                    });
+                  },
+                )
+              ],
+            )
       ]
       );
   }
@@ -171,7 +190,7 @@ class _PruebasTratamientosState extends State<_PruebasTratamientos> {
         [ 
           
           const Text("ADMINISTRACIÓN DE PRUEBA O TRATAMIENTOS FARMACOLOGICOS "),
-          _radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.aplicaTratamientos.value,
+          radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.aplicaTratamientos.value,
           onchange: (p0) {
             setState(() {
               formCtrl.aplicaTratamientos.value =  p0.toString();
@@ -248,41 +267,6 @@ class _RadioTratamientosState extends State<_RadioTratamientos> {
 }
 
 
-class _radioCustome extends StatefulWidget {
-
-  final List<String> opciones;
-  final Function(String?)? onchange;
-  final String? groupValue;
-  _radioCustome({super.key, required this.opciones, this.onchange, this.groupValue});
-
-  @override
-  State<_radioCustome> createState() => _radioCustomeState();
-}
-
-class _radioCustomeState extends State<_radioCustome> {
-
-  @override
-  Widget build(BuildContext context) {
-    final formCtrl = Get.find<FormController>();
-    
-    
-    return Row(
-      children: [
-
-
-        ...widget.opciones.map((opc) =>
-          Expanded(
-            child: RadioListTile(
-                title: Text(opc),
-                value: opc, 
-                groupValue: widget.groupValue,
-                onChanged: widget.onchange
-            ),
-          )).toList()
-      ],
-    );
-  }
-}
 
 class especialidades_dif extends StatefulWidget {
   const especialidades_dif({
@@ -300,7 +284,7 @@ class _especialidades_difState extends State<especialidades_dif> {
     return Column(
       children: [ 
         const Text("Orden especialidades diferentes a internista/psiquiatría /medicina familiar"),
-        _radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.especialidadesDiff.value,
+        radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.especialidadesDiff.value,
           onchange: (p0) {
             setState(() {
                 formCtrl.especialidadesDiff.value =  p0.toString();
@@ -343,7 +327,7 @@ class _especialidadesState extends State<especialidades> {
 
         const Divider(),
         const Text("Orden Internista"),
-        _radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.ordenInternitsa.value,
+        radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.ordenInternitsa.value,
           onchange: (p0) {
             setState(() {
                 formCtrl.ordenInternitsa.value =  p0.toString();
@@ -352,7 +336,7 @@ class _especialidadesState extends State<especialidades> {
 
         const Divider(),
         const Text("Orden Psiquiatría"),
-        _radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.ordenPsiqui.value,
+        radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.ordenPsiqui.value,
           onchange: (p0) {
             setState(() {
                 formCtrl.ordenPsiqui.value =  p0.toString();
@@ -361,7 +345,7 @@ class _especialidadesState extends State<especialidades> {
 
         const Divider(),
         const Text("Orden Medicina Familiar"),
-        _radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.ordenMedFamiliar.value,
+        radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.ordenMedFamiliar.value,
           onchange: (p0) {
             setState(() {
                 formCtrl.ordenMedFamiliar.value =  p0.toString();
@@ -369,17 +353,6 @@ class _especialidadesState extends State<especialidades> {
           },),
 
           const Divider(),
-          const Text("Vacunación en casa"),
-        _radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.vacunacionCasa.value,
-          onchange: (p0) {
-            setState(() {
-                formCtrl.vacunacionCasa.value =  p0.toString();
-            });
-          },),
-
-          Obx( ()=>
-            formCtrl.vacunacionCasa.value == "SI" ? CustomDropdownVacunaQuien() : const Divider()
-          ),
 
       ]
     );
@@ -400,7 +373,7 @@ class _OrdenPsicologiaState extends State<OrdenPsicologia> {
     return Column(
       children: [
         const Text("Orden Psicología"),
-        _radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.ordenPsico.value,
+        radioCustome(opciones: const ["SI","No","NA"], groupValue: formCtrl.ordenPsico.value,
           onchange: (p0) {
             setState(() {
                 formCtrl.ordenPsico.value =  p0.toString();

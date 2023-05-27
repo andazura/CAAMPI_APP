@@ -36,8 +36,8 @@ class LoadingPage extends StatelessWidget {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (_,__,___) => MenuScreen(),
-          transitionDuration: Duration(milliseconds: 0)
+          pageBuilder: (_,__,___) => const MenuScreen(),
+          transitionDuration: const Duration(milliseconds: 0)
           )
       );
     }else{
@@ -47,8 +47,8 @@ class LoadingPage extends StatelessWidget {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (_,__,___) => LoginPage(),
-          transitionDuration: Duration(milliseconds: 0)
+          pageBuilder: (_,__,___) => const LoginPage(),
+          transitionDuration: const Duration(milliseconds: 0)
           )
       );
       

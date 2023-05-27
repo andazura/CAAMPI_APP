@@ -321,7 +321,7 @@ class CustomDropdownEps extends StatefulWidget {
 
   final List<EpsModel> eps;
 
-  CustomDropdownEps({super.key, required this.eps});
+  const CustomDropdownEps({super.key, required this.eps});
 
   @override
   State<CustomDropdownEps> createState() => _CustomDropdownEpsState();

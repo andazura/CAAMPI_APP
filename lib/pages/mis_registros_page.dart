@@ -1,9 +1,10 @@
 import 'dart:math';
 
+import 'package:CAAPMI/controllers/form_controller.dart';
 import 'package:CAAPMI/controllers/registros_controller.dart';
 import 'package:CAAPMI/helpers/alertas.dart';
+import 'package:CAAPMI/pages/menu_page.dart';
 import 'package:CAAPMI/services/auth_service.dart';
-import 'package:CAAPMI/services/db_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -31,7 +32,7 @@ class MisRegistrosScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Mis reportes"),
         leading: IconButton(
-          icon: Icon( Icons.exit_to_app, color: Colors.white ),
+          icon: const Icon( Icons.exit_to_app, color: Colors.white ),
           onPressed: () {
             // todo desconectarnos del sokcet
             Navigator.pushReplacementNamed(context, 'login');
@@ -48,7 +49,7 @@ class MisRegistrosScreen extends StatelessWidget {
         ],
       ),
       body: SmartRefresher(
-        header: WaterDropHeader(),
+        header: const WaterDropHeader(),
         controller: _refreschCtrl,
         onRefresh: _loadReportes,
         child: Column(
@@ -76,7 +77,7 @@ class MisRegistrosScreen extends StatelessWidget {
                                   minTime: DateTime(1900),
                                   onConfirm: (date) {
                                     fecha_consultaCtrl.text = "${date.day.toString().padLeft(2,'0')}/${date.month.toString().padLeft(2,'0')}/${date.year}";
-                                    reportesController.getReportes(query: " AND fecha_consulta = '${fecha_consultaCtrl.text}'");
+                                    reportesController.getReportes(query: " AND repo.fecha_consulta = '${fecha_consultaCtrl.text}'");
                                   }, currentTime: DateTime.now(), locale: LocaleType.es);
                     },
                   ),
@@ -99,10 +100,10 @@ class MisRegistrosScreen extends StatelessWidget {
   _loadReportes() async {
 
     String? fecha = "";
-    fecha =  fecha_consultaCtrl.text  != "" ?  fecha_consultaCtrl.text : null ;
+    fecha =  fecha_consultaCtrl.text  != "" ? fecha_consultaCtrl.text : null ;
     final date = DateTime.now();
     fecha = fecha ?? "${date.day.toString().padLeft(2,'0')}/${date.month.toString().padLeft(2,'0')}/${date.year}";
-    await reportesController.getReportes(query: " AND fecha_consulta = '$fecha'");
+    await reportesController.getReportes( query: " AND repo.fecha_consulta = '$fecha'");
     _refreschCtrl.refreshCompleted();
   }
 }
@@ -141,7 +142,7 @@ class Registros extends StatelessWidget {
                         ),
                         leading: IconButton(
                           onPressed: () async {
-                            String query = " AND id_auto_reportes = ${reg['id_auto_reportes']}";
+                            String query = " AND repo.id_auto_reportes = ${reg['id_auto_reportes']}";
                             await reportesController.getReportes( modoExporte: 1,  query: query );
                             reportesController.exportReportes(  modo:  1 );
                           },
@@ -168,11 +169,19 @@ class Registros extends StatelessWidget {
         title: const Text('Registro'),
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            /// This parameter indicates the action would be a default
-            /// defualt behavior, turns the action's text to bold text.
             isDefaultAction: true,
-            onPressed: () {
+            onPressed: () async{
+              
+              final formCtrl = Get.find<FormController>();
+              final res = await formCtrl.loadRegistro(idReporte);
+              final mensaje = !res ? "Error en la consulta" : "Registro encontrado";
               Navigator.pop(context);
+              await mosrtarAlerta("Edicion", mensaje);
+              if(res){
+                final navegacionController = Get.find<NavegacionController>();
+                navegacionController.paginaActual = 0;
+              } 
+              
             },
             child: const Text('Editar'),
           ),
@@ -181,18 +190,15 @@ class Registros extends StatelessWidget {
               final res =  await reportesController.delReport( idReporte: idReporte );
               Navigator.pop(context);
               if(res >= 0){
-                mosrtarAlerta(context, "Registro eliminado", "Se elimino exitosamente");
+                mosrtarAlerta( "Registro eliminado", "Se elimino exitosamente");
               }else{
-                mosrtarAlerta(context, "Error", "No se pudo eliminar el registro");
+                mosrtarAlerta( "Error", "No se pudo eliminar el registro");
               }
               
             },
             child: const Text('Eliminar'),
           ),
           CupertinoActionSheetAction(
-            /// This parameter indicates the action would perform
-            /// a destructive action such as delete or exit and turns
-            /// the action's text color to red.
             isDestructiveAction: true,
             onPressed: () {
               Navigator.pop(context);

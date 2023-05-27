@@ -9,7 +9,7 @@ class InputsGeneralForm extends StatelessWidget {
 
   
   final TextEditingController consecutivoCtrl = TextEditingController();
-
+  final focusCons = FocusNode();
   InputsGeneralForm({super.key});
   @override
   Widget build(BuildContext context) {
@@ -25,24 +25,17 @@ class InputsGeneralForm extends StatelessWidget {
             CustomDropdownEstrategia(),
             const Text("EQUIPO", style: TextStyle(fontWeight: FontWeight.bold, ),),
             CustomDropdownEquipo(),
-            Focus(
-              onFocusChange: (value) {
-                if( !value ){
-                  FocusScope.of(context).previousFocus();
-                  validaConsecutivo();
-                }
-              },
-              child:
-                CustomInput(icon: Icons.numbers,
+            CustomInput(
+                icon: Icons.numbers,
                 placeholder: "Consecutivo",
                 initialValue: formCtrl.consecutivo.value,
+                focusNode: focusCons,
                 textController: consecutivoCtrl,
                   onchange: (p0) {
                     formCtrl.consecutivo.value = p0;
-                  }, 
-                  onediting: validaConsecutivo
-                ),
-            )
+                   formCtrl.idfamilia.value = formCtrl.localidad.value + formCtrl.estrateegia.value + formCtrl.equipo.value + formCtrl.consecutivo.value;
+                  },
+            ),
           ],
         ),
     );
@@ -53,10 +46,9 @@ class InputsGeneralForm extends StatelessWidget {
     formCtrl.idfamilia.value = 
     formCtrl.localidad.value + formCtrl.estrateegia.value + formCtrl.equipo.value + formCtrl.consecutivo.value;
     if(formCtrl.idfamilia.value.length != 17){
-      mosrtarAlerta(Get.context!, "Error el consecutivo", "Verifique el consecutivo");
-    }else{
-      FocusScope.of(Get.context!).requestFocus(new FocusNode()); 
-      print(formCtrl.idfamilia.value);
+      focusCons.unfocus();
+      mosrtarAlerta("Error el consecutivo", "Verifique el consecutivo");
+
     }
   }
 }

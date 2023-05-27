@@ -11,7 +11,7 @@ class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reportesController =  Get.put(RegistrosController());
-    return  Scaffold(
+    return  const Scaffold(
        
         body: _Pages(),
         bottomNavigationBar: Tabs(),
@@ -30,7 +30,7 @@ class _Pages extends StatelessWidget {
     return PageView(
       controller: navegacionController.pageController,
       children: [
-        FormRegistroPage(),
+        const FormRegistroPage(),
         MisRegistrosScreen()
       ],
     );
@@ -80,7 +80,7 @@ class NavegacionController extends GetxController {
 
     this.page.value = valor;
     _pageController.animateToPage(valor,
-        duration: Duration(milliseconds: 250), curve: Curves.easeInOut);
+        duration: const Duration(milliseconds: 250), curve: Curves.easeInOut);
   }
 
   PageController get pageController => this._pageController;
